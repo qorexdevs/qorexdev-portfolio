@@ -1,0 +1,20 @@
+{
+  "source": "Unsplash",
+  "note": "Illustrative photographs for synthetic demonstration products. No affiliation with pictured brands.",
+  "images": {
+    "coffee-hero.jpg": "https://images.unsplash.com/photo-1442512595331-e89e73853f31",
+    "flat-white.jpg": "https://images.unsplash.com/photo-1541167760496-1628856ab772",
+    "filter.jpg": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085",
+    "cappuccino.jpg": "https://images.unsplash.com/photo-1517256064527-09c73fc73e38",
+    "matcha.jpg": "https://images.unsplash.com/photo-1515823064-d6e0c04616a7",
+    "croissant.jpg": "https://images.unsplash.com/photo-1555507036-ab1f4038808a",
+    "cheesecake.jpg": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad",
+    "beans.jpg": "https://images.unsplash.com/photo-1447933601403-0c6688de566e",
+    "headphones.jpg": "https://images.unsplash.com/photo-1546435770-a3e426bf472b",
+    "keyboard.jpg": "https://images.unsplash.com/photo-1587829741301-dc798b83add3",
+    "monitor.jpg": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf",
+    "speaker.jpg": "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1",
+    "mouse.jpg": "https://images.unsplash.com/photo-1527814050087-3793815479db",
+    "webcam.jpg": "https://unsplash.com/photos/lq87UxGSiEQ"
+  }
+}
