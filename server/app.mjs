@@ -28,7 +28,9 @@ export function createApp(options = {}) {
     !Number.isFinite(maxWorkspaces) ||
     maxWorkspaces < 1 ||
     !Number.isFinite(rateLimitMax) ||
-    rateLimitMax < 1
+    rateLimitMax < 1 ||
+    !Number.isFinite(newWorkspaceLimit) ||
+    newWorkspaceLimit < 1
   )
     throw new Error('Invalid server limits');
   if (publicOrigin && new URL(publicOrigin).origin !== publicOrigin)
