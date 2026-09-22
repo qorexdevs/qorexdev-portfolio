@@ -55,6 +55,17 @@ test('invalid new workspace limits are rejected at startup', () => {
   }
 });
 
+test('invalid workspace byte limits are rejected at startup', () => {
+  let runtime;
+  try {
+    assert.throws(() => {
+      runtime = createApp({ dbPath: ':memory:', maxWorkspaceBytes: Number.NaN });
+    }, /Invalid server limits/);
+  } finally {
+    runtime?.close();
+  }
+});
+
 test('sparse updates preserve ticket, client and unavailable product fields', async () => {
   const f = await fixture();
   try {
