@@ -25,13 +25,13 @@ export function createApp(options = {}) {
   const secureCookie = options.secureCookie ?? publicOrigin.startsWith('https://');
   const trustProxy = options.trustProxy ?? process.env.TRUST_PROXY === '1';
   if (
-    !Number.isFinite(maxWorkspaces) ||
+    !Number.isInteger(maxWorkspaces) ||
     maxWorkspaces < 1 ||
-    !Number.isFinite(rateLimitMax) ||
+    !Number.isInteger(rateLimitMax) ||
     rateLimitMax < 1 ||
-    !Number.isFinite(newWorkspaceLimit) ||
+    !Number.isInteger(newWorkspaceLimit) ||
     newWorkspaceLimit < 1 ||
-    !Number.isFinite(maxWorkspaceBytes) ||
+    !Number.isInteger(maxWorkspaceBytes) ||
     maxWorkspaceBytes < 1
   )
     throw new Error('Invalid server limits');

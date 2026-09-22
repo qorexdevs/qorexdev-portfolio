@@ -66,6 +66,17 @@ test('invalid workspace byte limits are rejected at startup', () => {
   }
 });
 
+test('fractional server limits are rejected at startup', () => {
+  for (const option of [
+    'maxWorkspaces',
+    'rateLimitMax',
+    'newWorkspaceLimit',
+    'maxWorkspaceBytes',
+  ]) {
+    assert.throws(() => createApp({ dbPath: ':memory:', [option]: 1.5 }), /Invalid server limits/);
+  }
+});
+
 test('sparse updates preserve ticket, client and unavailable product fields', async () => {
   const f = await fixture();
   try {
