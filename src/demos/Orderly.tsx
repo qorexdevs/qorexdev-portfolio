@@ -476,7 +476,12 @@ function CheckoutForm({
   total: number;
   onSaved: () => void;
 }) {
-  const key = useRef(sessionStorage.getItem('orderly-checkout-key') || crypto.randomUUID());
+  const key = useRef(
+    sessionStorage.getItem('orderly-checkout-key') ||
+      Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) =>
+        byte.toString(16).padStart(2, '0'),
+      ).join(''),
+  );
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);

@@ -8,6 +8,18 @@ test('Orderly opens a usable coffee catalog', async ({ page }) => {
   await page.goto('/demo/orderly');
   await expect(page.getByRole('heading', { name: 'Кофе. И хороший день.' })).toBeVisible();
 });
+test('Orderly checkout works when randomUUID is unavailable', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window.crypto, 'randomUUID', { value: undefined });
+  });
+  await page.goto('/demo/orderly');
+  await page.getByRole('button', { name: 'Добавить Флэт уайт', exact: true }).click();
+  await page.getByRole('button', { name: 'Оформить заказ', exact: true }).click();
+  await page.getByLabel('Ваше имя').fill('Тестовый покупатель');
+  await page.getByLabel('Телефон', { exact: true }).fill('+7 000 000-00-00');
+  await page.getByRole('button', { name: 'Подтвердить тестовый заказ' }).click();
+  await expect(page.getByRole('heading', { name: 'Ваши заказы' })).toBeVisible();
+});
 test('PriceWatch opens persistent server monitoring', async ({ page }) => {
   await page.goto('/demo/pricewatch');
   await expect(page.getByRole('heading', { name: 'Цены под наблюдением' })).toBeVisible();
