@@ -12,12 +12,15 @@ services:
       PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Set PUBLIC_ORIGIN in .env}
       TRUST_PROXY: '1'
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
-      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-}
+      TELEGRAM_BOT_POLLING: ${TELEGRAM_BOT_POLLING:-0}
+      BOT_PROXY_URL: ${BOT_PROXY_URL:-socks5h://host.docker.internal:9050}
       MAX_WORKSPACES: ${MAX_WORKSPACES:-200}
       RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-120}
       NEW_WORKSPACE_LIMIT: ${NEW_WORKSPACE_LIMIT:-20}
     volumes:
       - demo_data:/app/data
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     expose:
       - '3000'
     read_only: true

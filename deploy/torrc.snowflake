@@ -1,0 +1,12 @@
+# Append to /etc/tor/torrc after installing tor and snowflake-client.
+# Verify Docker host-gateway is 172.17.0.1 and the project network is
+# 172.18.0.0/16 on this VPS before applying the SOCKS policy.
+UseBridges 1
+ClientTransportPlugin snowflake exec /usr/bin/snowflake-client
+Bridge snowflake 192.0.2.3:80 2B280B23E1107BB62ABFC40DDCC8824814F80A72 fingerprint=2B280B23E1107BB62ABFC40DDCC8824814F80A72 url=https://snowflake-broker.torproject.net/ ice=stun:stun.antisip.com:3478,stun:stun.epygi.com:3478,stun:stun.uls.co.za:3478,stun:stun.voipgate.com:3478,stun:stun.mixvoip.com:3478,stun:stun.nextcloud.com:3478,stun:stun.bethesda.net:3478,stun:stun.nextcloud.com:443 utls-imitate=hellorandomizedalpn
+
+SocksPort 127.0.0.1:9050
+SocksPort 172.17.0.1:9050
+SocksPolicy accept 127.0.0.0/8
+SocksPolicy accept 172.18.0.0/16
+SocksPolicy reject *
