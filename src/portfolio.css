@@ -644,6 +644,24 @@
   .solid-link:hover {
     background: #bc3514;
   }
+  .case-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .case-telegram-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--ink);
+    font-size: 12px;
+    font-weight: 650;
+    text-underline-offset: 4px;
+  }
+  .case-telegram-link:hover {
+    color: var(--accent);
+  }
   .case-screenshot {
     margin: 0;
     padding: 70px max(50px, calc((100% - 1070px) / 2)) 25px;

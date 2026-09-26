@@ -18,6 +18,30 @@ export const dateTime = (value: string) =>
   });
 export const productImage = (slug: string) => `/images/products/${slug}.jpg`;
 
+export function DemoRoleSelect({ demo, className }: { demo: DemoController; className?: string }) {
+  if (!demo.state) return null;
+  return (
+    <label className={className}>
+      <span>Роль</span>{' '}
+      <select
+        aria-label="Демонстрационная роль"
+        disabled={demo.busy}
+        value={demo.state.session.role}
+        onChange={(e) =>
+          void demo.mutate(
+            '/api/session/role',
+            { role: e.target.value },
+            'Демонстрационная роль изменена.',
+          )
+        }
+      >
+        <option value="admin">Администратор</option>
+        <option value="manager">Менеджер</option>
+      </select>
+    </label>
+  );
+}
+
 export function DemoBanner({ demo, slug }: { demo: DemoController; slug: string }) {
   return (
     <>
@@ -30,26 +54,7 @@ export function DemoBanner({ demo, slug }: { demo: DemoController; slug: string 
         </div>
         <div className="demo-banner-actions">
           <a href={`/work/${slug}`}>О проекте</a>
-          {demo.state && (
-            <label>
-              Роль{' '}
-              <select
-                aria-label="Демонстрационная роль"
-                disabled={demo.busy}
-                value={demo.state.session.role}
-                onChange={(e) =>
-                  void demo.mutate(
-                    '/api/session/role',
-                    { role: e.target.value },
-                    'Демонстрационная роль изменена.',
-                  )
-                }
-              >
-                <option value="admin">Администратор</option>
-                <option value="manager">Менеджер</option>
-              </select>
-            </label>
-          )}
+          <DemoRoleSelect demo={demo} />
           <button
             disabled={demo.busy || !demo.state}
             onClick={() => {

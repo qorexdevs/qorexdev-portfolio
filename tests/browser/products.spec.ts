@@ -205,6 +205,55 @@ test('mobile Orderly checkout works with touch-sized navigation', async ({ page 
   );
 });
 
+test('Telegram Orderly keeps its own navigation and role control', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/demo/orderly#tgWebAppData=test');
+  await expect(page.getByRole('heading', { name: 'Кофе. И хороший день.' })).toBeVisible();
+  await expect(page.locator('.demo-banner')).toHaveCount(0);
+  await expect(page.locator('a[href="/"]')).toHaveCount(0);
+  await expect(page.locator('a[href^="/work/"]')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Сбросить демо' })).toHaveCount(0);
+  const role = page.getByRole('combobox', { name: 'Демонстрационная роль' });
+  await expect(role).toBeVisible();
+  await page.getByRole('button', { name: 'Добавить Флэт уайт', exact: true }).click();
+  await page.getByRole('link', { name: /Корзина/ }).click();
+  await expect(role).toBeVisible();
+  await page.reload();
+  await expect(page.locator('.demo-banner')).toHaveCount(0);
+  await expect(role).toBeVisible();
+  await role.selectOption('manager');
+  await expect(role).toHaveValue('manager');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(
+    true,
+  );
+});
+
+test('browser Orderly keeps portfolio controls after a Telegram session', async ({ page }) => {
+  await page.route('**/api/state', async (route) => {
+    const response = await route.fetch();
+    const state = await response.json();
+    state.session.mode = 'telegram';
+    await route.fulfill({ response, json: state });
+  });
+  await page.goto('/demo/orderly');
+  await expect(page.getByRole('heading', { name: 'Кофе. И хороший день.' })).toBeVisible();
+  await expect(page.locator('.demo-banner')).toBeVisible();
+  await expect(page.locator('a[href="/"]')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Сбросить демо' })).toBeVisible();
+});
+
+test('browser Orderly error offers a way back to the portfolio', async ({ page }) => {
+  await page.route('**/api/state', async (route) => {
+    const response = await route.fetch();
+    const state = await response.json();
+    state.orderly = null;
+    await route.fulfill({ response, json: state });
+  });
+  await page.goto('/demo/orderly');
+  await expect(page.getByRole('heading', { name: 'Не удалось открыть страницу' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'На главную' })).toBeVisible();
+});
+
 test('PriceWatch explains the empty list and can restart observation', async ({ page }) => {
   await page.goto('/demo/pricewatch');
   page.on('dialog', (dialog) => dialog.accept());

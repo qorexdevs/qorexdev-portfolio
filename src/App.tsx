@@ -340,10 +340,22 @@ function CasePage({ project }: { project: Project }) {
             <h2>{project.caption}</h2>
             <div>
               <p>{project.summary}</p>
-              <a className="solid-link" href={`/demo/${project.slug}`}>
-                Открыть {project.name}
-                <ArrowUpRight size={21} />
-              </a>
+              <div className="case-links">
+                <a className="solid-link" href={`/demo/${project.slug}`}>
+                  Открыть {project.name}
+                  <ArrowUpRight size={21} />
+                </a>
+                {project.slug === 'orderly' && (
+                  <a
+                    className="case-telegram-link"
+                    href="https://t.me/qorexdev_orderly_bot"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Открыть в Telegram <ArrowUpRight size={17} />
+                  </a>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -455,7 +467,10 @@ function CasePage({ project }: { project: Project }) {
   );
 }
 
-class ErrorBoundary extends Component<{ children: ReactNode }, { error: boolean }> {
+class ErrorBoundary extends Component<
+  { children: ReactNode; showPortfolioLink: boolean },
+  { error: boolean }
+> {
   state = { error: false };
   static getDerivedStateFromError() {
     return { error: true };
@@ -464,9 +479,13 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: boolean 
     return this.state.error ? (
       <main className="route-message">
         <h1>Не удалось открыть страницу</h1>
-        <p>Обновите страницу. Если ошибка повторится, вернитесь в портфолио.</p>
+        <p>
+          {this.props.showPortfolioLink
+            ? 'Обновите страницу. Если ошибка повторится, вернитесь в портфолио.'
+            : 'Обновите страницу или попробуйте еще раз.'}
+        </p>
         <button onClick={() => window.location.reload()}>Попробовать еще раз</button>
-        <a href="/">На главную</a>
+        {this.props.showPortfolioLink && <a href="/">На главную</a>}
       </main>
     ) : (
       this.props.children
@@ -485,6 +504,10 @@ export default function App() {
         : path === '/demo/pricewatch'
           ? PriceWatch
           : null;
+  const telegramOrderly =
+    path === '/demo/orderly' &&
+    (window.location.hash.includes('tgWebAppData') ||
+      new URLSearchParams(window.location.search).get('source') === 'telegram');
   useEffect(() => {
     if (Demo)
       document.title = `${projects.find((p) => path.endsWith(p.slug))?.name} - интерактивная демоверсия / qorexdev`;
@@ -495,7 +518,7 @@ export default function App() {
     return () => robots.remove();
   }, [Demo, path]);
   return (
-    <ErrorBoundary>
+    <ErrorBoundary showPortfolioLink={!telegramOrderly}>
       <a className="skip-link" href="#main">
         Перейти к содержимому
       </a>

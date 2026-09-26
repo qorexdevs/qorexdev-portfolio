@@ -842,6 +842,27 @@
   gap: 8px;
   color: var(--d-muted);
 }
+.orderly-role-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--d-muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.orderly-role-control select {
+  min-height: 36px;
+  padding: 6px 9px;
+  border: 1px solid var(--d-line);
+  background: #fffaf3;
+  color: var(--d-ink);
+  font-size: 11px;
+}
+.orderly-telegram-notice {
+  margin-top: 12px;
+  color: var(--d-accent);
+  font-size: 12px;
+}
 .orderly-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 310px;
@@ -2093,6 +2114,27 @@
   .orderly-header {
     flex-wrap: wrap;
     gap: 12px;
+  }
+  .orderly--telegram .orderly-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'brand role'
+      'nav nav';
+    align-items: center;
+  }
+  .orderly--telegram .orderly-brand {
+    grid-area: brand;
+  }
+  .orderly--telegram .orderly-role-control {
+    grid-area: role;
+  }
+  .orderly--telegram .orderly-role-control span {
+    display: none;
+  }
+  .orderly--telegram .orderly-nav {
+    grid-area: nav;
+    justify-content: space-between;
   }
   .orderly-brand {
     font-size: 31px;

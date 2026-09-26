@@ -1,7 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { makeState } from './seed.mjs';
@@ -21,6 +21,8 @@ export function createApp(options = {}) {
   const creationRates = new Map();
   const rateWindowMs = options.rateWindowMs ?? 60000;
   const telegramBotToken = options.telegramBotToken ?? process.env.TELEGRAM_BOT_TOKEN ?? '';
+  const telegramWebhookSecret =
+    options.telegramWebhookSecret ?? process.env.TELEGRAM_WEBHOOK_SECRET ?? '';
   const publicOrigin = options.publicOrigin ?? process.env.PUBLIC_ORIGIN ?? '';
   const secureCookie = options.secureCookie ?? publicOrigin.startsWith('https://');
   const trustProxy = options.trustProxy ?? process.env.TRUST_PROXY === '1';
@@ -35,8 +37,26 @@ export function createApp(options = {}) {
     maxWorkspaceBytes < 1
   )
     throw new Error('Invalid server limits');
+  if (
+    !Number.isFinite(intervalSeconds) ||
+    intervalSeconds <= 0 ||
+    !Number.isFinite(workerPollMs) ||
+    workerPollMs <= 0 ||
+    !Number.isFinite(sessionTtlMs) ||
+    sessionTtlMs <= 0 ||
+    !Number.isFinite(rateWindowMs) ||
+    rateWindowMs <= 0
+  )
+    throw new Error('Invalid server timing');
   if (publicOrigin && new URL(publicOrigin).origin !== publicOrigin)
     throw new Error('PUBLIC_ORIGIN must contain an origin without a trailing slash or path');
+  if (
+    telegramWebhookSecret &&
+    (!telegramBotToken ||
+      !publicOrigin.startsWith('https://') ||
+      !/^[A-Za-z0-9_-]{16,128}$/.test(telegramWebhookSecret))
+  )
+    throw new Error('Invalid Telegram webhook configuration');
   const store = createStore({
     dbPath,
     intervalSeconds,
@@ -75,6 +95,38 @@ export function createApp(options = {}) {
       res.status(503).json({ status: 'error' });
     }
   });
+  app.post(
+    '/telegram/webhook',
+    (req, res, next) => {
+      if (!telegramWebhookSecret) return res.sendStatus(404);
+      const supplied = req.get('X-Telegram-Bot-Api-Secret-Token') || '';
+      const suppliedHash = createHash('sha256').update(supplied).digest();
+      const expectedHash = createHash('sha256').update(telegramWebhookSecret).digest();
+      if (!timingSafeEqual(suppliedHash, expectedHash)) return res.sendStatus(403);
+      next();
+    },
+    express.json({ limit: '32kb', strict: true }),
+    (req, res) => {
+      const message = req.body?.message;
+      if (
+        !Number.isSafeInteger(req.body?.update_id) ||
+        message?.chat?.type !== 'private' ||
+        !Number.isSafeInteger(message.chat.id) ||
+        typeof message.text !== 'string'
+      )
+        return res.sendStatus(200);
+      res.json({
+        method: 'sendMessage',
+        chat_id: message.chat.id,
+        text: 'Orderly - демонстрационный проект qorexdev. Соберите корзину и оформите тестовый заказ. Оплаты и доставки здесь нет.',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: 'Открыть Orderly', web_app: { url: `${publicOrigin}/demo/orderly` } }],
+          ],
+        },
+      });
+    },
+  );
   app.use('/api', (req, res, next) => {
     res.set('Cache-Control', 'no-store');
     const now = Date.now();

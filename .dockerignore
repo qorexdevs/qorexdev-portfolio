@@ -18,5 +18,6 @@ playwright-report
 test-results
 tests
 scripts
+relay
 *.zip
 *.log

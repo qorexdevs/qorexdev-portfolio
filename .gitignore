@@ -11,3 +11,5 @@ artifacts/
 AGENTS.md
 CLAUDE.md
 .codex/
+.wrangler/
+.dev.vars

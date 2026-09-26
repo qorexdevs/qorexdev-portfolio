@@ -1,11 +1,15 @@
 {
-  email {$ACME_EMAIL}
+	email {$ACME_EMAIL}
 }
 
 {$DOMAIN} {
-  encode zstd gzip
-  request_body {
-    max_size 64KB
-  }
-  reverse_proxy app:3000
+	encode zstd gzip
+	request_body {
+		max_size 64KB
+	}
+	reverse_proxy app:3000
+}
+
+{$WWW_DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
 }

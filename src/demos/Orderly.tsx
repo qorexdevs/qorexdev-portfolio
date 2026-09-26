@@ -13,6 +13,7 @@ import type { Order, OrderStatus, Product } from '../../shared/types';
 import { useDemo, type DemoController } from '../lib/api';
 import {
   DemoBanner,
+  DemoRoleSelect,
   ErrorNotice,
   LoadingState,
   Modal,
@@ -55,7 +56,14 @@ export default function Orderly() {
   const [checkout, setCheckout] = useState(false);
   const [editProduct, setEditProduct] = useState<string | null>(null);
   const telegramAttempted = useRef(false);
+  const [telegramHash] = useState(() => window.location.hash.includes('tgWebAppData'));
+  const [telegramLaunch] = useState(
+    () =>
+      window.location.hash.includes('tgWebAppData') ||
+      new URLSearchParams(window.location.search).get('source') === 'telegram',
+  );
   const state = demo.state;
+  const standalone = telegramLaunch;
   const isAdmin = state?.session.role === 'admin';
   const products =
     state?.orderly.products.filter(
@@ -73,8 +81,16 @@ export default function Orderly() {
   const selectedProduct = state?.orderly.products.find((product) => product.id === editProduct);
 
   useEffect(() => {
-    if (!state || telegramAttempted.current || !window.location.hash.includes('tgWebAppData'))
-      return;
+    if (!telegramHash) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('source') !== 'telegram') {
+      url.searchParams.set('source', 'telegram');
+      window.history.replaceState(window.history.state, '', url);
+    }
+  }, [telegramHash]);
+
+  useEffect(() => {
+    if (!state || telegramAttempted.current || !telegramHash) return;
     const start = () => {
       const webapp = window.Telegram?.WebApp;
       if (!webapp || telegramAttempted.current) return;
@@ -102,7 +118,7 @@ export default function Orderly() {
     }
     script.addEventListener('load', start);
     return () => script?.removeEventListener('load', start);
-  }, [state?.session.telegramConfigured, demo.mutate, state]);
+  }, [state?.session.telegramConfigured, demo.mutate, state, telegramHash]);
 
   function quantity(productId: string) {
     return state?.orderly.cart.find((item) => item.productId === productId)?.quantity || 0;
@@ -116,8 +132,8 @@ export default function Orderly() {
   }
 
   return (
-    <div className="demo orderly">
-      <DemoBanner demo={demo} slug="orderly" />
+    <div className={`demo orderly${standalone ? ' orderly--telegram' : ''}`}>
+      {!standalone && <DemoBanner demo={demo} slug="orderly" />}
       {!state ? (
         <LoadingState demo={demo} />
       ) : (
@@ -152,11 +168,20 @@ export default function Orderly() {
                 </button>
               )}
             </nav>
-            <span className="orderly-location">
-              <MapPin size={15} />
-              Самовывоз / демо-кофейня
-            </span>
+            {standalone ? (
+              <DemoRoleSelect demo={demo} className="orderly-role-control" />
+            ) : (
+              <span className="orderly-location">
+                <MapPin size={15} />
+                Самовывоз / демо-кофейня
+              </span>
+            )}
           </header>
+          {standalone && demo.notice && (
+            <div className="orderly-telegram-notice" role="status">
+              {demo.notice}
+            </div>
+          )}
           <ErrorNotice error={demo.error} />
           {tab === 'catalog' && (
             <>

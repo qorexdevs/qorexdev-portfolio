@@ -77,6 +77,20 @@ test('fractional server limits are rejected at startup', () => {
   }
 });
 
+test('invalid timer durations are rejected at startup', () => {
+  for (const [option, value] of [
+    ['intervalSeconds', 0],
+    ['workerPollMs', Number.NaN],
+    ['sessionTtlMs', Infinity],
+    ['rateWindowMs', 0],
+  ]) {
+    assert.throws(
+      () => createApp({ dbPath: ':memory:', [option]: value }),
+      /Invalid server timing/,
+    );
+  }
+});
+
 test('sparse updates preserve ticket, client and unavailable product fields', async () => {
   const f = await fixture();
   try {
@@ -525,6 +539,46 @@ test('Telegram validates signed initData and rejects stale or modified credentia
       ).response.status,
       401,
     );
+  } finally {
+    await f.close();
+  }
+});
+
+test('Telegram webhook rejects unauthenticated updates and returns a Mini App launch button', async () => {
+  const secret = 'synthetic-webhook-secret-123456';
+  const f = await fixture({
+    telegramBotToken: '12345:synthetic-test-token',
+    telegramWebhookSecret: secret,
+    publicOrigin: 'https://qorex.dev',
+  });
+  try {
+    const update = {
+      update_id: 123,
+      message: { text: '/start', chat: { id: 42, type: 'private' } },
+    };
+    async function send(value, body = update) {
+      return fetch(f.origin + '/telegram/webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Telegram-Bot-Api-Secret-Token': value,
+        },
+        body: JSON.stringify(body),
+      });
+    }
+    assert.equal((await send('wrong-secret')).status, 403);
+    const accepted = await send(secret);
+    assert.equal(accepted.status, 200);
+    const reply = await accepted.json();
+    assert.equal(reply.method, 'sendMessage');
+    assert.equal(reply.chat_id, 42);
+    assert.match(reply.text, /демонстрацион/);
+    assert.equal(
+      reply.reply_markup.inline_keyboard[0][0].web_app.url,
+      'https://qorex.dev/demo/orderly',
+    );
+    assert.equal((await send(secret, { update_id: 124 })).status, 200);
+    assert.equal(f.runtime.db.prepare('SELECT count(*) AS n FROM workspaces').get().n, 0);
   } finally {
     await f.close();
   }

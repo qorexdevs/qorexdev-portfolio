@@ -29,6 +29,14 @@ test('all three cases are reachable and contacts preserve requested targets', as
   }
 });
 
+test('Orderly case links to its Telegram bot', async ({ page }) => {
+  await page.goto('/work/orderly');
+  await expect(page.getByRole('link', { name: 'Открыть в Telegram' })).toHaveAttribute(
+    'href',
+    'https://t.me/qorexdev_orderly_bot',
+  );
+});
+
 test('unknown route has a clear way home', async ({ page }) => {
   await page.goto('/missing');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('не найдена');
