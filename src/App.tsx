@@ -43,7 +43,10 @@ function Footer() {
   return (
     <footer className="site-footer wrap">
       <Wordmark />
-      <p>Веб-сервисы. Telegram. Автоматизация.</p>
+      <p>
+        Веб-сервисы. Telegram. Автоматизация.
+        <span className="footer-year">© {new Date().getFullYear()}</span>
+      </p>
       <a href="#top">
         Наверх <ArrowUpRight size={16} />
       </a>
@@ -53,29 +56,31 @@ function Footer() {
 
 function Contact() {
   return (
-    <section id="contact" className="contact wrap">
-      <div className="contact-heading">
-        <p className="section-label">Есть задача?</p>
-        <h2>
-          Давайте разберемся
-          <br />и сделаем.
-        </h2>
-        <p className="contact-note">
-          Расскажите, что сейчас работает неудобно.
-          <br />
-          Обсудим задачу, ограничения и первый шаг.
-        </p>
-      </div>
-      <div className="contact-links">
-        {contacts.map((c) => (
-          <a key={c.name} href={c.href} aria-label={c.name} target="_blank" rel="noreferrer">
-            <div>
-              <span>{c.label}</span>
-              <strong>{c.name}</strong>
-            </div>
-            <ArrowUpRight size={30} weight="light" />
-          </a>
-        ))}
+    <section id="contact" className="contact-band">
+      <div className="contact wrap">
+        <div className="contact-heading">
+          <p className="section-label">Есть задача?</p>
+          <h2>
+            Давайте разберемся
+            <br />и сделаем.
+          </h2>
+          <p className="contact-note">
+            Расскажите, что сейчас работает неудобно.
+            <br />
+            Обсудим задачу, ограничения и первый шаг.
+          </p>
+        </div>
+        <div className="contact-links">
+          {contacts.map((c) => (
+            <a key={c.name} href={c.href} aria-label={c.name} target="_blank" rel="noreferrer">
+              <div>
+                <span>{c.label}</span>
+                <strong>{c.name}</strong>
+              </div>
+              <ArrowUpRight size={30} weight="light" />
+            </a>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -91,6 +96,16 @@ function ProjectPreview({ project, featured = false }: { project: Project; featu
       >
         <div className="project-picture-title">
           <span>{project.name}</span>
+          {featured && (
+            <div className="project-detail">
+              <p>{project.summary}</p>
+              <ul>
+                {project.features.slice(0, 3).map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <ArrowUpRight size={28} weight="light" />
         </div>
         <img
@@ -105,6 +120,7 @@ function ProjectPreview({ project, featured = false }: { project: Project; featu
         <div>
           <p>{project.type}</p>
           <h3>{project.caption}</h3>
+          <p className="project-summary">{project.summary}</p>
         </div>
         <a href={`/demo/${project.slug}`} aria-label={`Демо ${project.name}`}>
           Попробовать <ArrowUpRight size={18} />
@@ -188,6 +204,17 @@ function Home() {
               </span>
             </div>
           </div>
+          <ul className="showcase-legend" aria-label="Проекты на превью">
+            {projects.map((p) => (
+              <li key={p.slug}>
+                <a href={`/work/${p.slug}`}>
+                  <span className={`legend-swatch ${p.tone}`} aria-hidden="true" />
+                  <strong>{p.name}</strong>
+                  <span>{p.type}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section id="work" className="work-section wrap">
@@ -225,6 +252,24 @@ function Home() {
               <br />
               Подбираю технологии под задачу.
             </p>
+            <dl className="stack-list">
+              <div>
+                <dt>Интерфейс</dt>
+                <dd>React, TypeScript, Vite</dd>
+              </div>
+              <div>
+                <dt>Сервер</dt>
+                <dd>Node.js, Express, SQLite</dd>
+              </div>
+              <div>
+                <dt>Telegram</dt>
+                <dd>Bot API, Mini Apps</dd>
+              </div>
+              <div>
+                <dt>Запуск</dt>
+                <dd>Docker, Caddy, VPS</dd>
+              </div>
+            </dl>
           </div>
           <div className="capability-list">
             <article>
@@ -299,9 +344,12 @@ function Home() {
                 'Передать',
                 'Подготавливаю запуск, настройки и инструкцию. Обсуждаем дальнейшую поддержку и развитие.',
               ],
-            ].map(([title, copy]) => (
+            ].map(([title, copy], i) => (
               <article key={title}>
                 <span className="process-tick" />
+                <span className="process-step" aria-hidden="true">
+                  {i + 1}/4
+                </span>
                 <h3>{title}</h3>
                 <p>{copy}</p>
               </article>
